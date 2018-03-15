@@ -17,7 +17,7 @@ Currently supported platforms:
 ## Default
 
 ``` console
-$ ./check-ssl-certificate-expiry-dates.sh 
+$ ./check-ssl-certificate-expiry-dates.sh
 usage: check-ssl-certificate-expiry-dates.sh <grace period in days> <host1:port> [hostN:port]
 ```
 
@@ -41,8 +41,8 @@ $ ./check-ssl-certificate-expiry-dates.sh 31 test1.localdomain:443 test2.localdo
 
 # Return Codes
 
-* 0: no certificates are not going to expire
-* 1: some (or all) certificates are going to expire
+* 0: No certificates are not going to expire
+* 1: Some (or all) certificates are going to expire
 
 
 # Dependencies
@@ -53,5 +53,5 @@ $ ./check-ssl-certificate-expiry-dates.sh 31 test1.localdomain:443 test2.localdo
 
 ## Dependencies for macOS
 1. Brew
-2. OpenSSL (for `openssl` from Brew, because of macOS has an outdated OpenSSL)
+2. OpenSSL (for `openssl` from Brew, because macOS has an outdated OpenSSL)
 3. Coreutils (for `gtimeout` from Brew)
