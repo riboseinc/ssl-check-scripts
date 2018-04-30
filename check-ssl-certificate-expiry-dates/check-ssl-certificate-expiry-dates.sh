@@ -45,10 +45,20 @@ errx() {
 usage() {
 	echo -n "usage: ${__progname} "
 	echo -n "<grace period in days> "
+	echo -n "<connection timeout in seconds> "
 	echo -n "<host1:port> "
 	echo "[hostN:port]"
 
 	exit 1
+}
+
+checktimeout() {
+	[[ ! "$1" =~ ^-?[0-9]+$ || \
+		"$1" -le 0 || \
+		"$1" -gt 20 ]] && \
+			errx "${FUNCNAME[0]}() invalid timeout '$1'"
+
+	return 0
 }
 
 checkgraceperiod() {
@@ -68,13 +78,13 @@ checkos() {
 
 	"${uname}" | grep -q ^Darwin
 	if [ $? -eq 0 ]; then
-		export openssl="${opensslmac}"
-		export timeout="${timeoutmac}"
+		readonly export openssl="${opensslmac}"
+		readonly export timeout="${timeoutmac}"
 
 		return 0
 	elif [ -f "${rhrel}" ]; then
-		export openssl="${openssllnx}"
-		export timeout="${timeoutlnx}"
+		readonly export openssl="${openssllnx}"
+		readonly export timeout="${timeoutlnx}"
 
 		return 0
 	fi
@@ -110,7 +120,7 @@ checksslcertificate() {
 
 	# obtain the SSL certificate
 	local sslcert="$(echo | \
-			"${timeout}" 10 \
+			"${timeout}" "${timeoutvalue}" \
 			"${openssl}" s_client \
 			-connect "${host}:${port}" 2>/dev/null)"
 	if [ -z "${sslcert}" ]; then
@@ -152,7 +162,7 @@ checksslcertificate() {
 main() {
 	local ret="0"
 
-	[ -z "$2" ] && \
+	[ -z "$3" ] && \
 		usage
 
 	# grace period in days
@@ -160,6 +170,13 @@ main() {
 
 	# verify the grace period
 	checkgraceperiod "${graceperioddays}"
+
+	shift
+	# connection timeout in seconds
+	readonly export timeoutvalue="$1"
+
+	# verify the timeout value
+	checktimeout "${timeoutvalue}"
 
 	# ensure we're on RHEL/CentOS or macOS
 	checkos
